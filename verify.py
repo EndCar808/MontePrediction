@@ -13,5 +13,7 @@ print(get_verification_status(email=os.getenv("YOUR_EMAIL")))
 z = get_most_recent_truth()
 print({'z':z})
 
+
+
 # score = compute_score(samples=df.values, z=z)
 # print(f"Score using your samples above last week: {score}")
