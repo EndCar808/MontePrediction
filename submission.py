@@ -6,18 +6,18 @@ import time
 from monteprediction import SPDR_ETFS
 from monteprediction.calendarutil import get_last_wednesday
 from monteprediction.submission import send_in_chunks
+import logging
 
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
+logging.basicConfig(filename='/home/enda/MontePrediction/logs/logfile.log', level=logging.INFO)
+
 #################################################
 #   Example entry for www.monteprediction.com   #
 #################################################
-
-# For explanation see the notebook: https://colab.research.google.com/github/microprediction/monteprediction_colab_examples/blob/main/monteprediction_entry.ipynb
-# After modifying this script, run it every weekend on a cron job. 
 
 # Factory defaults (don't modify)
 num_samples_per_chunk = int(1048576/8)
@@ -51,7 +51,22 @@ assert len(df.index)==num_samples,f'Expecting exactly {num_samples} samples'
 assert list(df.columns)==SPDR_ETFS,'Columns should match SPDR_ETFS in order'
 
 YOUR_EMAIL = os.getenv("MY_EMAIL")
-YOUR_NAME = os.getenv("MY_NAME")
-print(YOUR_EMAIL, YOUR_NAME)
-send_in_chunks(df, num_chunks=num_chunks, email=YOUR_EMAIL, name=YOUR_NAME)
+YOUR_NAME  = os.getenv("MY_NAME")
 
+try:
+    # Send data
+    send_in_chunks(df, num_chunks=num_chunks, email=YOUR_EMAIL, name=YOUR_NAME)
+    logging.info("Submission successful!")
+except Exception as e:
+    logging.error(f"Submission failed: {e}")
+    
+
+
+from monteprediction.verification import get_verification_status
+import time
+
+# Wait to allow submission 
+time.sleep(20*60)
+
+# Print verification message
+print(get_verification_status(email=YOUR_EMAIL))
